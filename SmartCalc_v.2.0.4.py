@@ -1007,7 +1007,7 @@ def make_about_frame():
     AboutFrame.grid(row = 5, column = 0, columnspan = 20, sticky =  N + S + E + W)
     blank_label = Label(AboutFrame, text = "", fg = "#000000", padx = 70, bg = bg_color)
     blank_label.grid(row = 10, column = 0)
-    about_label = Label(AboutFrame, text = str(messages_dict[str(lang)][1]).center(0), fg = "#000000", bg = bg_color, width = 130)
+    about_label = Label(AboutFrame, text = str(messages_dict[str(lang)][1]).center(0), fg = "#000000", bg = bg_color, width = 130, justify = LEFT)
     about_label.grid(row = 10, column = 5, columnspan = 10, sticky = E + W)
     
 
@@ -1026,7 +1026,7 @@ def make_info_frame():
     InfoFrame.grid(row = 10, column = 0, columnspan = 20, sticky =  N + S + E + W)
     blank2_label = Label(InfoFrame, text = "", fg = "#000000", padx = 200, bg = bg_color)
     blank2_label.grid(row = 11, column = 0, pady = 0)
-    info_label = Label(InfoFrame, text = str(messages_dict[str(lang)][2]), fg = "#000000", bg = bg_color)
+    info_label = Label(InfoFrame, text = str(messages_dict[str(lang)][2]), fg = "#000000", bg = bg_color, justify = LEFT)
     info_label.grid(row = 12, column = 5, columnspan = 10)
 
     #φωτογραφία δική μου
@@ -1164,7 +1164,7 @@ def main():
     #μουσικό χαλί με την έναρξη της εφαρμογής
     global start
     if start :
-        #play_music()
+        play_music()
         start = False
     
     #ρολόι (θα εμφανίζεται σε ολα τα Frames, για αυτό θα το τοποθετήσω

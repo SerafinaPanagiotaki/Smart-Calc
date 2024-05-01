@@ -389,8 +389,10 @@ def delay_time():
     #μορφοποίηση ώρας
     display_new_time = f"{current_time: %A, %d %B %Y - %H:%M:%S}"
 
-    #αλλαγή της ώρας μέσα στο ρολόι
-    clock.config(text = display_new_time)
+    #αλλαγή της ώρας μέσα στο ρολόι (το try... except μπήκε για να
+    #μην εμφανίζει σφάλμα κατά τον τερματισμό της εφαρμογής)
+    try: clock.config(text = display_new_time)
+    except: pass
 
     #ανανέωση του αρχικού παραθύρου (για να εφαρμοστεί η αλλαγή)
     start_window.update()

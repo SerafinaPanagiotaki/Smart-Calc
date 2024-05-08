@@ -9,6 +9,7 @@ from pygame import mixer
 import speech_recognition
 import pyaudio
 import math
+import os
 import sys
 import webbrowser
 
@@ -121,7 +122,7 @@ ID Project: 46
 ("Τερματισμός προγράμματος", "Θέλετε σίγουρα να τερματίσετε το πρόγραμμα;"),
 ("Επιβεβαίωση τερματισμού", "Ευχαριστούμε που χρησιμοποιήσατε το Smart Calc!\n\n [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024\nΟμάδα_5_Project\n\nΠιέστε ΟΚ για τερματισμό."),
 '''Για να διαβάσετε την τεκμηρίωση της εφαρμογής, πιέστε το κουμπί
-ή πιέστε <Esc> για έξοδο.''', 'Τεκμηρίωση', "ΕΑΠ [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Ομάδα_5_Project    Smart Calc v.3.0"],
+ή πιέστε <Esc> για έξοδο.''', 'Τεκμηρίωση', "ΕΑΠ [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Ομάδα_5_Project    Smart Calc v.3.0", ('Σφάλμα:', 'Δε βρέθηκε το αρχείο τεκμηρίωσης.')],
                     
                 'uk': ['Project Title: Scientific calculator build with tkinter library', '''
 
@@ -158,7 +159,7 @@ Professor/Assistance coach and Supervisor: Apostolos Xenakis
 ("Exit program", "Are you sure that you want to exit program?"),
 ("Exit confirmation", "Thank you for using Smart Calc!\n\n[ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024\nTeam_5_Project\n\nPress OK to exit."),
 '''To read documentation, click the button
-or press <Esc> to exit.''', 'Documentation', "HOU [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Team_5_Project    Smart Calc v.3.0"]                      
+or press <Esc> to exit.''', 'Documentation', "HOU [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Team_5_Project    Smart Calc v.3.0", ('Error:', 'Documentation file not found.')]                      
                 }
 
 #Συναρτήσεις
@@ -269,6 +270,12 @@ words_dict = {'ΠΡΟΣΘΕΣΗ':addition, 'ΠΡΟΣΘΕΣΕ':addition, 'ΣΥΝ'
             }
 
 def find_numbers(list_):
+    '''
+        Συνάρτηση που εντοπίζει τους αριθμούς που - τυχόν - υπάρχουν μέσα σε μία λίστα κειμένου και
+        τους καταχωρεί σε μία νέα λίστα.
+    '''
+    #print(find_numbers.__doc__)
+    
     #αρχικοποιηση λίστας
     numbers_list = []
 
@@ -952,8 +959,24 @@ def open_documentation():
     '''
     #print(open_documentation.__doc__)
 
-    #άνοιγμα σε νέο browser
-    webbrowser.open("documentation.html", new = 1, autoraise = True)
+    #άνοιγμα σε νέα καρτέλα του browser (new = 2). Άλλες διαθέσιμες επιλογές:
+    # - άνοιγμα στον ίδιο (ανοιχτό) browser: new = 0
+    # - άνοιγμα σε νέο browser: new = 1
+
+    #match case
+    match(lang):
+        #ο έλεγχος ύπαρξης του αρχείου τεκμηρίωσης γίνεται με if... else αντί για try... except,
+        #διότι με try... excpet ΑΝΟΙΓΕΙ καρτέλα στον φυλλομετρητή και εμφανίζει εκεί σφάλμα, ενώ
+        #εμείς θέλουμε να εμφανιστεί στην οθόνη φιλικό μήνυμα προς τον χρήστη και ΝΑ ΜΗΝ ΑΝΟΙΞΕΙ
+        #το URL αν δε βρεθεί το αρχείο τεκμηρίωσης
+        case 'gr':
+            if os.path.isfile("documentation_gr.html"): webbrowser.open("documentation_gr.html", new = 2, autoraise = True)
+            #FileNotFoundError
+            else: messagebox.showerror(messages_dict[lang][10][0], messages_dict[lang][10][1])
+        case 'uk':
+            if os.path.isfile("documentation_uk.html"): webbrowser.open("documentation_uk.html", new = 2, autoraise = True)
+            #FileNotFoundError
+            else: messagebox.showerror(messages_dict[lang][10][0], messages_dict[lang][10][1])
 
 def make_main_frame():
     '''

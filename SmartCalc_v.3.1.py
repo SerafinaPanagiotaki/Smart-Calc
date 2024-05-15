@@ -815,7 +815,7 @@ def what_to_do(number):
                             show_to_screen(digit)
                         except ValueError: show_to_screen('Error')
                 else: show_to_screen(digit)  
-            except ZeroDivisionError: digit = 'Error'
+            except ZeroDivisionError: show_to_screen('Error')
             except OverflowError: show_to_screen('Error')                    
         # αφαίρεση (user-defined function))
         case 29:

@@ -12,8 +12,6 @@ import math
 import os
 import sys
 import webbrowser
-import pyautogui
-
 
 #δηλώσεις μεταβλητών
 #προεπιλεγμένη γλώσσα: Ελληνικά (στην πρώτη γραμμή) και στην ώρα (δεύτερη γραμμή)
@@ -123,7 +121,7 @@ ID Project: 46
 ("Τερματισμός προγράμματος", "Θέλετε σίγουρα να τερματίσετε το πρόγραμμα;"),
 ("Επιβεβαίωση τερματισμού", "Ευχαριστούμε που χρησιμοποιήσατε το Smart Calc!\n\n [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024\nΟμάδα_5_Project\n\nΠιέστε ΟΚ για τερματισμό."),
 '''Για να διαβάσετε την τεκμηρίωση της εφαρμογής, πιέστε το κουμπί
-ή πιέστε <Esc> για έξοδο.''', 'Τεκμηρίωση', "ΕΑΠ [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Ομάδα_5_Project    Smart Calc v.3.2", ('Σφάλμα:', 'Δε βρέθηκε το αρχείο τεκμηρίωσης.')],
+ή πιέστε <Esc> για έξοδο.''', 'Τεκμηρίωση', "ΕΑΠ [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Ομάδα_5_Project    Smart Calc v.3.4", ('Σφάλμα:', 'Δε βρέθηκε το αρχείο τεκμηρίωσης.')],
                     
                 'uk': ['Project Title: Scientific calculator build with tkinter library', '''
 
@@ -160,7 +158,7 @@ Professor/Assistance coach and Supervisor: Apostolos Xenakis
 ("Exit program", "Are you sure that you want to exit program?"),
 ("Exit confirmation", "Thank you for using Smart Calc!\n\n[ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024\nTeam_5_Project\n\nPress OK to exit."),
 '''To read documentation, click the button
-or press <Esc> to exit.''', 'Documentation', "HOU [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Team_5_Project    Smart Calc v.3.2", ('Error:', 'Documentation file not found.')]                      
+or press <Esc> to exit.''', 'Documentation', "HOU [ΠΛΗΠΡΟ - ΗΛΕ52] 2023 - 2024 Team_5_Project    Smart Calc v.3.4", ('Error:', 'Documentation file not found.')]                      
                 }
 
 #Συναρτήσεις
@@ -300,50 +298,43 @@ def voice_call():
     #δημιουργία αντικειμένου της κλάσης Recognizer
     listener = speech_recognition.Recognizer()
    
-    #δημιουργία αντικειμένου της κλάσης Microphone
-    with speech_recognition.Microphone() as mic:
-        try:        
-            #... αν υπάρξει κενό (παύση) μεγαλύτερη από 0.2 secs, ο listener
-            #θα το αναγνωρίσει ως επόμενη φράση
-            #listener.adjust_for_ambient_noise(mic, duration = 0.2)
+    #δημιουργία αντικειμένου της κλάσης Microphone    
+    try:
+        with speech_recognition.Microphone() as mic:
+            try:        
+                #... αν υπάρξει κενό (παύση) μεγαλύτερη από 0.2 secs, ο listener
+                #θα το αναγνωρίσει ως επόμενη φράση
+                #listener.adjust_for_ambient_noise(mic, duration = 0.2)
 
-            #μεταβλητή στην οποία αποθηκεύουμε τη φωνή
-            voice = listener.listen(mic)
+                #μεταβλητή στην οποία αποθηκεύουμε τη φωνή
+                voice = listener.listen(mic)
 
-            #μετατροπή σε κείμενο
-            text_from_voice = listener.recognize_google(voice)
+                #μετατροπή σε κείμενο
+                text_from_voice = listener.recognize_google(voice)
 
-            #####################
-            # TESTING.......... #
-            #####################
-            print(text_from_voice)
-            print('You just spoke')
+                #ήχος ('beep.mp3') που ακούγεται μετά την ολοκλήρωση της φράσης του χρήστη
+                mixer.music.load(sounds[1])
+                mixer.music.play()
 
-            #ήχος ('beep.mp3') που ακούγεται μετά την ολοκλήρωση της φράσης του χρήστη
-            mixer.music.load(sounds[1])
-            mixer.music.play()
+                #διαχωρισμός των λέξεων του κειμένου και τοποθέτησή τους σε λίστα
+                text_list = text_from_voice.split(' ')
 
-            #διαχωρισμός των λέξεων του κειμένου και τοποθέτησή τους σε λίστα
-            text_list = text_from_voice.split(' ')
+                #εντοπισμός των λέξεων κλειδιών που υποδηλώνουν πράξη (ή τελεστή)
+                for word in text_list:
+                    #εντοπισμός των τελεστέων και καταχώρισή τους σε λίστα
+                    if word.upper() in words_dict.keys():
+                        numbers_list = find_numbers(text_list)
 
-            #εντοπισμός των λέξεων κλειδιών που υποδηλώνουν πράξη (ή τελεστή)
-            for word in text_list:
-                #εντοπισμός των τελεστέων και καταχώρισή τους σε λίστα
-                if word.upper() in words_dict.keys():
-                    numbers_list = find_numbers(text_list)
-                    print(numbers_list)
-
-                    global digit
-                    digit = words_dict[word.upper()](numbers_list[0], numbers_list[1])
-                    show_to_screen(digit)
-                #αμυντικός προγ/μός ('οριακή' περίπτωση κατά την οποία ο χρήστης δεν
-                #έδωσε τελεστή ή το πρόγραμμα δεν τον αναγνώρισε μέσω της φωνής του χρήστη)
-                else: pass        
-        #περίπτωση να μην αναγνωρίσει το μικρόφωνο(φιλικό μήνυμα προς τον χρήστη)
-        except OSError:
-            messagebox.showwarning(messages_dict[str(lang)][3], messages_dict[str(lang)][4])
-        #περιπτώσεις όπου ο listener δεν αναγνωρίζει τη φωνή (και θα προέκυπτε σφάλμα)
-        except: print("Coudn't hear you")
+                        global digit
+                        digit = words_dict[word.upper()](numbers_list[0], numbers_list[1])
+                        show_to_screen(digit)
+                    #αμυντικός προγ/μός ('οριακή' περίπτωση κατά την οποία ο χρήστης δεν
+                    #έδωσε τελεστή ή το πρόγραμμα δεν τον αναγνώρισε μέσω της φωνής του χρήστη)
+                    else: pass        
+            #περιπτώσεις όπου ο listener δεν αναγνωρίζει τη φωνή (θα προέκυπτε σφάλμα)
+            except: messagebox.showwarning(messages_dict[str(lang)][3], messages_dict[str(lang)][4])
+    #περίπτωση να μην υπάρχει συσκευή εισόδου
+    except: messagebox.showwarning(messages_dict[str(lang)][3], messages_dict[str(lang)][4])
 
 def change(frame_name):
     '''
@@ -568,8 +559,7 @@ def reverse_operator():
     
     global operator
     user_input = screen.get()    
-    digit = user_input
-    print('testing, digit:', digit)
+    digit = user_input    
     #περίπτωση αλλαγής προσήμου σε ολόκληρη παρένθεση
     if digit[-1] == ')':
         #αν όλες οι παρενθέσεις είναι ζευγάρια, τότε αντιστρέφουμε το πρόσημο στην
@@ -596,8 +586,7 @@ def reverse_operator():
                 
             #...εύρεση προσήμου εκτός της αριστερής παρένθεσης...
             if start > 0:
-                operator = digit[start - 1 : start]
-                print('operator:', operator)
+                operator = digit[start - 1 : start]                
             else: operator = ''        
             #...και αντιστροφή του
             #match case
@@ -697,11 +686,8 @@ def add_to_memory():
     global memory_on
     global user_input
     memory_on = True    
-    digit = eval(user_input)
-    print('digit:', digit)
-    print('total_memory_before:', total_memory)
-    total_memory += '+' + str(digit)
-    print('total_memory_after:', total_memory)
+    digit = eval(user_input)        
+    total_memory += '+' + str(digit)    
     clear_all()
     user_input = None
     screen.insert(END, u'\u1D39')    
@@ -750,9 +736,7 @@ def what_to_do(number):
             digit = math.sqrt(eval(user_input))
             show_to_screen(digit)
         #MR (συνολικό αποτέλεσμα μνήμης -> user-defined function)
-        case 5:
-            print('right here')
-            print('eval(total_memory):', eval(total_memory))
+        case 5:            
             digit = eval(total_memory)
             clear_all()
             screen.insert(0, str(digit) + u'\u1D39')
@@ -906,76 +890,35 @@ def key_command(event):
 
     #match case πλήκτρων
     match(key_pressed):
-        case '<Return>':            
-            what_to_do(28)
-        case '<KP_Enter>':            
-            what_to_do(28)
-        case '=':
-            what_to_do(28)        
-        case '1':
-            what_to_do(15)
-        case 'KP_1':
-            what_to_do(15)
-        case '2':
-            what_to_do(16)
-        case 'KP_2':            
-            what_to_do(16)
-        case '3':
-            what_to_do(17)
-        case 'KP_3':
-            what_to_do(17)
-        case '4':
-            what_to_do(25)
-        case 'KP_4':
-            what_to_do(25)
-        case '5':
-            what_to_do(26)
-        case 'KP_5':
-            what_to_do(26)
-        case '6':
-            what_to_do(27)
-        case 'KP_6':
-            what_to_do(27)
-        case '7':
-            what_to_do(35)
-        case 'KP_7':
-            what_to_do(35)
-        case '8':
-            what_to_do(36)
-        case 'KP_8':
-            what_to_do(36)
-        case '9':
-            what_to_do(37)
-        case 'KP_9':
-            what_to_do(37)
-        case '0':
-            what_to_do(38)
-        case 'KP_0':
-            what_to_do(38)
-        case 'KP_Divide':
-            what_to_do(9)
-        case '/':
-            what_to_do(9)
-        case '*':
-            what_to_do(19)
-        case 'KP_Multiply':
-            what_to_do(19)            
-        case '-':
-            what_to_do(29)
-        case 'KP_Subtract':
-            what_to_do(29)
-        case 'KP_Add':
-            what_to_do(39)
-        case '+':
-            what_to_do(39)
-        case '<Delete>':
-            what_to_do(18)
-        case '.':
-            what_to_do(47)
-        case 'KP_Decimal':
-            what_to_do(47)        
-        case 'F1':  #CE
-            what_to_do(8)
+               
+        case '1': what_to_do(15)
+        case 'KP_1': what_to_do(15)
+        case '2': what_to_do(16)
+        case 'KP_2': what_to_do(16)
+        case '3': what_to_do(17)
+        case 'KP_3': what_to_do(17)
+        case '4': what_to_do(25)
+        case 'KP_4': what_to_do(25)
+        case '5': what_to_do(26)
+        case 'KP_5': what_to_do(26)
+        case '6': what_to_do(27)
+        case 'KP_6': what_to_do(27)
+        case '7': what_to_do(35)
+        case 'KP_7': what_to_do(35)
+        case '8': what_to_do(36)
+        case 'KP_8': what_to_do(36)
+        case '9': what_to_do(37)
+        case 'KP_9': what_to_do(37)
+        case '0': what_to_do(38)
+        case 'KP_0': what_to_do(38)
+        case 'Return': what_to_do(28)    #'='
+        case 'slash': what_to_do(9)      #'/'          
+        case 'asterisk': what_to_do(19)  #'*'
+        case 'minus': what_to_do(29)     #'-'
+        case 'plus': what_to_do(39)      #'+'
+        case 'BackSpace': what_to_do(18) #C        
+        case 'period': what_to_do(47)    #'.'            
+        case 'F1':  what_to_do(8)        #CE 
 
 def open_documentation():
     '''
@@ -1077,9 +1020,6 @@ def make_calc_frame():
     #το περίγραμμα του calculator τη νέα απόχρωση σε περίπτωση αλλαγής theme
     calculator.config(bg = colors[theme][0][1])
     calculator.grid(row = 7, column = 6, rowspan = 10, columnspan = 12, pady = 0)
-
-##    #αναμονή για πάτημα πλήκτρων
-##    keyboard.wait()
     
     #εικονίδο ΕΑΠ
     eap_label_calc.grid(row = 7, column = 6, padx = 5, sticky = W + N)

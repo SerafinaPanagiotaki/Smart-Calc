@@ -31,9 +31,7 @@ photo = ['calc.ico', 'eap_logo2.png', 'smartcalc.jpg', 'serafina.jpg', 'xenakis.
 #λίστα με τα Frames που εναλλάσσονται    
 frames_list = ['MainFrame',  'AboutFrame', 'CalcFrame', 'InfoFrame']
 
-#λίστα με τα ονόματα του κουμπιών του calculator (οι κενές τιμές τοποθετήθηκαν
-#εσκεμμένα, για να πάρουν πάρουν index - στη θέση τους θα βάλω εικονίδιο στα κουμπιά -)
-#global buttons_names_list
+#λίστα με τα ονόματα του κουμπιών του calculator 
 buttons_names_list = ['ON/OFF', 'sinθ', 'cosθ', 'tanθ', u'\u221A', 'MR', 'MC', 'M+', 'CE', u'\u00F7',
                       'Themes', 'asinθ', 'acosθ', 'atanθ', u'\u207F'+u'\u221A', '1', '2', '3', 'C', u'\u00D7',
                       'log' + u'\u2081' + u'\u2080', 'sinh', 'cosh', 'tanh', 'x'+u'\u00B2', '4', '5', '6', '=', '-',
@@ -201,7 +199,7 @@ def change_language(var):
     
     #αμυντικός προγ/μός (για να μην "χτυπήσει σφάλμα" στην περίπτωση που
     #αλλάξει ο χρήστης τη γλώσσα (μόνο ένα από τα Frames είναι ενεργό κάθε
-    #φορά, για τα υπόλοιπα το πρόγραμμα κάνει exception χωρίς το try...except)    
+    #φορά, για τα υπόλοιπα, χωρίς το try...except, το πρόγραμμα κάνει exception)    
     try:
         global introLabel1
         introLabel1.config(text = messages_dict[str(lang)][0])
@@ -450,9 +448,12 @@ def change_theme():
     global theme
     for i in range(len(theme_list)):        
         if theme == theme_list[i]:
+            #αν το τρέχον theme δεν είναι το τελευταίο...
             if theme != theme_list[-1]:
+                #...προχώρησε κατά ένα...
                 theme = theme_list[i + 1]            
                 break
+            #...αλλιώς θέσε το πρώτο theme ως τρέχον
             else: theme = theme_list[0]
     user_input = screen.get()
     make_calc_frame()
@@ -473,14 +474,13 @@ def add_digit(digit):
     global memory_on
 
     #έλεγχος αν κρατείται αποτέλεσμα στην μνήμη (αφαίρεση του M από την οθόνη)
-    if memory_on and u'\u1D39' in user_input: user_input = user_input[1:]
-##    if memory_on and u'\u1D39' in user_input: user_input = user_input[1:]     
+    if memory_on and u'\u1D39' in user_input: user_input = user_input[1:]  
 
     #έλεγχος αν το μηδέν είναι πρώτο ψηφίο και ΔΕΝ ακολούθησε υποδιαστολή
     if user_input != '0':        
         digit = user_input + str(digit)
         
-        #περίπτωση υπολογισμού n-οστής ρίζας
+        #περίπτωση υπολογισμού n-οστής ρίζας (η οποία περικλείεται σε παρενθέσεις)
         global n_root
         if n_root and digit[-1] == ')': n_root = False
         show_to_screen(digit)
@@ -500,7 +500,7 @@ def dot():
     if previous_dot == -1: allow_dot = True
     else:
         #... αν δεν υπάρχει τελεστής μετά την τελευταία υποδιαστολή
-        #δεν μπορεί να χρησιμοποιηθεί ξανά η υποδιαστολή
+        #ΔΕΝ μπορεί να χρησιμοποιηθεί ξανά η υποδιαστολή
         #Ο ΕΛΕΓΧΟΣ ΓΙΝΕΤΑΙ ΜΕ ΑΝΑΠΟΔΗ ΦΟΡΑ
         for character in user_input[-1 : - len(user_input) + previous_dot : -1]:
             if character in ['+', '-', '*', '/', '**']:                
@@ -519,7 +519,7 @@ def clear_all():
     #print(clear_all.__doc__)
 
     global total_memory
-    #καθαρισμός μνήμης
+    #καθαρισμός οθόνης (ΟΧΙ της μνήμης, εφόσον κρατάει αποτέλεσμα)
     if memory_on: total_memory += ''
     screen.delete(0, END)
 
@@ -574,9 +574,13 @@ def reverse_operator():
         else:
             #έρευνα αν υπάρχουν και άλλες "κλειστές" παρενθέσεις εντός αυτής
             #...εύρεση της τελευταίας (εσώτερης) αριστερής παρένθεσης...
-            start = digit.rfind('(')
+            start = digit.rfind('(')            
 
-            look_up = digit[start : -1].rfind(')')
+            #...έρευνα από το σημείο που εντοπίστηκε η τελευταία αριστερή παρένθεση
+            #μέχρι την προτελευταία θέση (προτελευταία, διότι γνωρίζουμε πως στην
+            #τελευταία θέση υπάρχει δεξιά παρένθεση (είμαστε στο block εντολών του
+            #εξωτερικού if --> if digit[-1] == ')':.....
+            look_up = digit[-start : -1].rfind(')')
 
             while look_up != -1 and start != -1:
                 #...ψάξε και για άλλες αριστερές παρενθέσεις, αριστερότερα
@@ -638,6 +642,7 @@ def reverse_number():
         Συνάρτηση που αντιστρέφει την είσοδο του χρήστη (1/x).
     '''
     #print(reverse_number.__doc__)
+    
     global digit
     try: digit = 1/eval(user_input)
     except ZeroDivisionError: digit = 'Error'
@@ -649,6 +654,7 @@ def parenthesis(action):
         ανοίγει αριστερή παρένθεση ή κλείνει δεξιά.
     '''
     #print(open_parenthesis.__doc__)
+    
     #match case
     match(action):        
         #άνοιγμα παρένθεσης
@@ -707,8 +713,8 @@ def what_to_do(number):
     global digit
     global memory_on
 
-    #αμυντικός προγ/μός (ο χρήστης πληκτρολογήσει υπολογισμό χωρίς είσοδο)
-    #εξαιρούνται: σταθερές (π, e), η '(', η υποδιαστολή ο τελεστής '-',
+    #αμυντικός προγ/μός (αν ο χρήστης πληκτρολογήσει κάποιο πλήκτρο χωρίς να υπάρχει στην συνέχεια
+    #υπολογισμός έκφρασης, εξαιρούνται: σταθερές (π, e), η '(', η υποδιαστολή ο τελεστής '-',
     #το κουμπί ON/OFF, η αλλαγή themes και τα ψηφία (0-9)
     #ή στην οθόνη εμφανίστηκε μήμυμα σφάλματος (σταματά κάθε υπολογισμός)
     if len(user_input) == 0 and number not in [0, 10, 15, 16, 17, 25, 26, 27, 29, 35, 36, 37, 38, 40, 43, 47, 48] or (user_input == 'Error' and number != 8): return
@@ -803,7 +809,7 @@ def what_to_do(number):
                 show_to_screen(digit)
                 what_to_do(28)                
             except OverflowError: show_to_screen('Error')                    
-        # = (user-defined function))
+        # '=' (user-defined function))
         case 28:            
             #αμυντικός προγ/μός
             try:
@@ -974,7 +980,8 @@ def make_main_frame():
     for i in range(len(menuBtnsList)):
         menuBtn = Button(buttonsFrame, text = menuBtnsList[i], fg = bg_color, bg = "#8787ab", width = 20, pady = 15, font = ('Helvetica', 9, 'bold'), anchor = 'center', command = lambda i = i: change(frames_list[i]))
         menuBtn.grid(row = 4, column = 3 + 4 * i, columnspan = 2, padx = 30)
-    
+
+    #τίτλος project
     global introLabel1    
     introLabel1 = Label(buttonsFrame, text = messages_dict[str(lang)][0], font = ('Helvetica', 8, 'bold'), bg = bg_color, fg = "#000000", anchor = 'center', pady = 10)    
     introLabel1.grid(row = 10, column = 0, columnspan = 20, sticky =  E + W)
@@ -1045,7 +1052,7 @@ def make_calc_frame():
 
     #προεπιλογή: ENABLED
     status = 'ENABLED'
-    #επιλογή χρωμάτων (foreground, background0
+    #επιλογή χρωμάτων (foreground, background)
     for i in range(len(buttons_names_list)):
         
         #όλα τα υπόλοιπα πλήκτρα
@@ -1072,7 +1079,7 @@ def make_calc_frame():
             next_line += 1
         calc_btn.grid(row = 15 + next_line, column = 6 + next_column, pady = 4, padx = 3)
         next_column += 1
-        #ενεργοποίηση/απενεργοποίηση πλήκτρων αριθμομηχανής
+        #ενεργοποίηση/απενεργοποίηση πλήκτρων calculator (εκτός από το ON/OFF)
         if power == 'off' and i != 0: calc_btn.config(state = 'disabled')
         else: calc_btn.config(state = 'normal')
 
@@ -1137,6 +1144,8 @@ def play_music():
     if start:
         intro_music = True
         mixer.music.load(sounds[0])
+
+        #loop playing
         mixer.music.play(-1)
         speaker_btn.config(image = speaker_on)
         start = False
@@ -1145,8 +1154,7 @@ def play_music():
         if intro_music:
             intro_music = False            
             mixer.music.unpause()
-            speaker_btn.config(image = speaker_on)
-        #loop playing            
+            speaker_btn.config(image = speaker_on)           
         else:
             mixer.music.pause()
             speaker_btn.config(image = speaker_off)
@@ -1202,7 +1210,7 @@ def main():
     mixer.init()
 
     #κατασκευή των Frames εδώ και τοποθέτησής τους (.grid) όποτε χρειαστεί. Αυτό το
-    #επιλέγουμε για να μπορουμε να κατασκευάσουμε τις εικόνες, οι οποιες χρειαζεται
+    #επιλέγουμε για να μπορουμε να κατασκευάσουμε τις εικόνες, οι οποιες χρειάζεται
     #να τοποθετηθουν στα ανάλογα Frames (αν δεν ειναι δηλωμένα σε αυτό το σημείο τα
     #Frames, o compiler χτυπάει σφάλμα (δηλώνονται ως καθολικές - global - μεταβλητές)
     global InfoFrame

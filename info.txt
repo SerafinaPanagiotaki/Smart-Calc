@@ -1,0 +1,49 @@
+************ Smart Calc ************
+(EL-GR)
+========== Οδηγίες χρήσης ==========
+Για να τρέξετε την εφαρμογή, υπάρχουν
+δύο διαθέσιμες επιλογές:
+
+- Από το εκτελέσιμο αρχείο (.exe), χωρίς
+καμία απαίτηση συστήματος
+
+- Από το .py αρχείο σε οποιοδήποτε IDLE 
+της Python, όπου σε αυτήν την περίπτωση 
+απαιτούνται τα εξής:
+ 1. Εγκατεστημένη έκδοση της Python στον
+ υπολογιστή, v.3.12 και μεταγενέστερη
+ 2. Εγκατάσταση (από τη γραμμή εντολών
+ command prompt) των αναγκαίων πακέτων 
+ για το πρόγραμμα (συμβουλευθείτε για 
+ αναλυτικότερες πληροφορίες την τεκμηρίωση
+ της εφαρμογής: documentation_gr.html#modules)
+
+Σε κάθε περίπτωση, είναι απαραίτητο το αρχείο
+που θα εκτελέσετε να βρίσκεται στο φάκελο με 
+όλα τα υπόλοιπα στοιχεία της εφαρμογής 
+(συμβουλευθείτε και τα αρχεία readme με τις 
+οδηγίες ορθής εκτέλεσης)
+
+(EN-UK)
+========== Installation guide ==========
+In order to run this app, there are two
+available options:
+
+- Directly from the executable file (.exe),
+with no system requirements
+
+- From .py file in any Python IDLE, which, in 
+that case, there are some prerequisites:
+ 1. Python installed on your computer, v.3.12
+ or later
+ 2. Essential package installation from your
+ command prompt line (for further information, 
+ you can see this app's documentation: 
+ documentation_uk.html#modules)
+
+In any case, it is essential that the file that
+you choose to run from this app must be in the
+same folder with all the app's components (you
+can also read specific information files provided)
+
+

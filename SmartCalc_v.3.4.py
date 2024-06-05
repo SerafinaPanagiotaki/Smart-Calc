@@ -473,8 +473,7 @@ def add_digit(digit):
     global memory_on
 
     #έλεγχος αν κρατείται αποτέλεσμα στην μνήμη (αφαίρεση του M από την οθόνη)
-    if memory_on and u'\u1D39' in user_input: user_input = user_input[1:]
-##    if memory_on and u'\u1D39' in user_input: user_input = user_input[1:]     
+    if memory_on and u'\u1D39' in user_input: user_input = user_input[1:]    
 
     #έλεγχος αν το μηδέν είναι πρώτο ψηφίο και ΔΕΝ ακολούθησε υποδιαστολή
     if user_input != '0':        

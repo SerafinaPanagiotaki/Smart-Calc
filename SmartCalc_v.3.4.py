@@ -697,20 +697,29 @@ def what_to_do(number):
         την αντίστοιχη συνάρτηση.
     '''
     #print(what_to_do.__doc__)
-
-    #έλεγχος εγκυρότητας της εισόδου του χρήστη
-    #είσοδος χρήστη
-    global user_input
-    user_input = screen.get()
+   
     global total_memory
     global digit
     global memory_on
 
-    #αμυντικός προγ/μός (ο χρήστης πληκτρολογήσει υπολογισμό χωρίς είσοδο)
+    #έλεγχος εγκυρότητας της εισόδου του χρήστη
+    #αμυντικός προγ/μός
+    #1. (ο χρήστης πληκτρολογεί χωρίς να βρίσκεται στο calculator)
+    #Χωρίς τη δομή ελέγχου try...except, στην κονσόλα "χτυπάει" σφάλμα,
+    #ενώ τώρα προσπερνά την επιλογή του (πληκτρολόγηση) εφόσον αυτή δε
+    #γίνεται στο calculator
+    #2. (ο χρήστης πληκτρολογεί υπολογισμό χωρίς είσοδο)
     #εξαιρούνται: σταθερές (π, e), η '(', η υποδιαστολή ο τελεστής '-',
     #το κουμπί ON/OFF, η αλλαγή themes και τα ψηφία (0-9)
     #ή στην οθόνη εμφανίστηκε μήμυμα σφάλματος (σταματά κάθε υπολογισμός)
-    if len(user_input) == 0 and number not in [0, 10, 15, 16, 17, 25, 26, 27, 29, 35, 36, 37, 38, 40, 43, 47, 48] or (user_input == 'Error' and number != 8): return
+    try:
+        #είσοδος χρήστη
+        global user_input
+        user_input = screen.get()
+        #...αν πατηθεί πλήκτρο πράξης χωρίς τελεστέο(υς)...
+        #...ή μετά από ένδειξη σφάλματος (επιτρέπονται μόνο: καθαρισμός οθόνης, αλλαγή theme και κλείσιμο calculator)
+        if len(user_input) == 0 and number not in [0, 10, 15, 16, 17, 25, 26, 27, 29, 35, 36, 37, 38, 40, 43, 47, 48] or (user_input == 'Error' and number not in [0, 8, 10]): return
+    except: pass
     
     #match case (number: index κουμπιών calculator)
     match(number):
@@ -750,8 +759,10 @@ def what_to_do(number):
         case 8: clear_all()
         #διαίρεση (user-defined function)
         case 9:
-            digit = user_input + '/'
-            show_to_screen(digit)
+            try:
+                digit = user_input + '/'
+                show_to_screen(digit)
+            except: pass
         #τόξο ημιτόνου
         case 11:
             digit = math.asin(eval(user_input))
@@ -774,10 +785,12 @@ def what_to_do(number):
             show_to_screen(digit)
         #C (διαγραφή τελευταίου ψηφίου -> user-defined function)
         case 18: clear_last()
-        #πολλαπλασιασμός (user-defined fufdef reverse_openction))
+        #πολλαπλασιασμός (user-defined function)
         case 19:
-            digit = user_input + '*'
-            show_to_screen(digit)
+            try:
+                digit = user_input + '*'
+                show_to_screen(digit)
+            except: pass
         #δεκαδικός λογάριθμος
         case 20:
             digit = math.log10(eval(user_input))
@@ -806,8 +819,8 @@ def what_to_do(number):
         case 28:
             #αν ο τελευταίος χαρακτήρας στην οθόνη δεν είναι τελεστής,
             #υποδιαστολή ή ανοιχτή παρένθεση, ή υπάρχει ψηφίο στην τελευταία
-            #θέςση αλλά ταυτόχρονα υπάρχει(ουν) και ανοιχτή(ές) παρένθεση(εις),
-            #το πρόγραμμα "παγώνει" και περιμένει νέα είσοδο του χρήστη, αλλιως
+            #θέση αλλά ταυτόχρονα υπάρχει(ουν) και ανοιχτή(ές) παρένθεση(εις),
+            #το πρόγραμμα "παγώνει" και περιμένει νέα είσοδο του χρήστη, αλλιώς
             #προχωρά και υπολογίζει το αποτέλεσμα
             if user_input[-1] not in ['+', '-', '*', '/', '**', '(', '.'] and left_parenthesis == 0:
                 #αμυντικός προγ/μός
@@ -825,8 +838,10 @@ def what_to_do(number):
                 except OverflowError: show_to_screen('Error')                    
         # αφαίρεση (user-defined function))
         case 29:
-            digit = user_input + '-'
-            show_to_screen(digit)
+            try:
+                digit = user_input + '-'
+                show_to_screen(digit)
+            except: pass
         #λογάριθμος με βάση το 2
         case 30:
             digit = math.log2(eval(user_input))
@@ -849,8 +864,10 @@ def what_to_do(number):
             show_to_screen(digit)
         #πρόσθεση (user-defined function))
         case 39:
-            digit = user_input + '+'
-            show_to_screen(digit)
+            try:
+                digit = user_input + '+'
+                show_to_screen(digit)
+            except: pass
         #αριθμός e
         case 40:
             digit = user_input + str(math.e)
@@ -871,18 +888,22 @@ def what_to_do(number):
         case 44:
             digit = math.factorial(eval(user_input))
             show_to_screen(digit)
-        # αντιστροφή αριθμου (1 / x)
+        # αντιστροφή αριθμου (1 / x --> user-defined function)
         case 45: reverse_number()
-        #αντιστροφή προσήμου (user-defined function))
+        #αντιστροφή προσήμου (user-defined function)
         case 46: reverse_operator()
         #υποδιαστολή (user-defined function))
-        case 47: dot()
+        case 47:
+            try: dot()
+            except: pass
         #αριστερή παρένθεση (user-defined function))
         case 48: parenthesis('open')
         #δεξιά παρένθεση (user-defined function))
         case 49: parenthesis('close')
         # ψηφία 0 - 9 (user-defined function))
-        case _: add_digit(numbers_dict[str(number)])                                   
+        case _:
+            try: add_digit(numbers_dict[str(number)])
+            except: pass
 
 def key_command(event):
     '''
@@ -894,8 +915,13 @@ def key_command(event):
     key_pressed = event.keysym
 
     #match case πλήκτρων
-    match(key_pressed):
-               
+    #αμυντικός προγ/μός
+    #οι δομές ελέγχου try...except που εφαρμόστηκαν,
+    #χρησιμοποιούνται για την περίπτωση ο χρήστης να
+    #πληκτρολογήσει σε σημείο που δε βρίσκεται στο
+    #calculator (αν δεν υπήρχαν τα try...except, τότε
+    #θα "χτυπούσε" σφάλμα ο compiler)
+    match(key_pressed):               
         case '1': what_to_do(15)
         case 'KP_1': what_to_do(15)
         case '2': what_to_do(16)
@@ -916,14 +942,20 @@ def key_command(event):
         case 'KP_9': what_to_do(37)
         case '0': what_to_do(38)
         case 'KP_0': what_to_do(38)
-        case 'Return': what_to_do(28)    #'='
+        case 'Return':
+            try: what_to_do(28)          #'='
+            except: pass
         case 'slash': what_to_do(9)      #'/'          
         case 'asterisk': what_to_do(19)  #'*'
         case 'minus': what_to_do(29)     #'-'
         case 'plus': what_to_do(39)      #'+'
-        case 'BackSpace': what_to_do(18) #C        
+        case 'BackSpace':
+            try: what_to_do(18)          #C
+            except: pass
         case 'period': what_to_do(47)    #'.'            
-        case 'F1':  what_to_do(8)        #CE 
+        case 'F1':                       #CE
+            try: what_to_do(8)        
+            except: pass
 
 def open_documentation():
     '''

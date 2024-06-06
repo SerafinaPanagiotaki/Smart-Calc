@@ -531,6 +531,24 @@ def clear_last():
     clear_all()
     #αποτέλεσμα με μνήμη
     if user_input[-1] == u'\u1D39': screen.insert(0, user_input[:-2] + u'\u1D39')
+    #αν σβηστεί αριστερή ή δεξιά παρένθεση, αλλάζει το πλήθος τους
+    elif user_input[-1] == '{':
+        global left_parenthesis
+        global right_parenthesis
+        left_parenthesis -= 1
+        if left_parenthesis == right_parenthesis:
+            left_parenthesis = 0
+            right_parenthesis = 0
+        screen.insert(0, user_input[:-1])
+    elif user_input[-1] == ')':
+        if right_parenthesis > 0:
+            right_parenthesis -= 1
+        else: right_parenthesis = 1
+        if left_parenthesis == right_parenthesis:
+            left_parenthesis = 0
+            right_parenthesis = 0
+        screen.insert(0, user_input[:-1])
+            
     #αποτέλεσμα χωρίς μνήμη
     else: screen.insert(0, user_input[:-1])
     
@@ -560,78 +578,87 @@ def reverse_operator():
     user_input = screen.get()    
     digit = user_input    
     #περίπτωση αλλαγής προσήμου σε ολόκληρη παρένθεση
-    if digit[-1] == ')':
-        #αν όλες οι παρενθέσεις είναι ζευγάρια, τότε αντιστρέφουμε το πρόσημο στην
-        #αρχή της έκφρασης
+    if digit[-1] == ')':        
+        #αν όλες οι παρενθέσεις είναι ζευγάρια, τότε αντιστρέφουμε το πρόσημο ΑΚΡΙΒΩΣ
+        #ΠΡΙΝ από την πρώτη αριστερή παρένθεση...
         if left_parenthesis == 0 and right_parenthesis == 0:
+            start = digit.find('(')
+            #έλεγχος του χαρακτήρα που προηγείται της τελευταίας αριστερής
+            #παρένθεσης που μας ενδιαφέρει
+            if start == 0: digit = '-' + digit[start : ]
+            else:
+                match(digit[start - 1]):
+                    case '-': digit = digit[ : start - 1] + '+' + digit[start : ]
+                    case _: digit = digit[ : start - 1] + '-' + digit[start : ]
+        else:
+            #...αλλιώς, ψάχνω από το ΤΕΛΟΣ: αν από την τελευταία δεξιά παρένθεση ως την
+            #τελευταία αριστερή παρένθεση ΔΕΝ παρεμβάλλετα άλλη δεξιά παρένθεση, τότε αλλάζω
+            #το πρόσημο έξω από την αριστερή, αλλιώς ψάχνω την αμέσως επόμενη αριστερή
+            #παρένθεση ξεκινώντας από την προηγούμενη και προς τα αριστερά με την ίδια
+            #λογική (αναδρομικά)            
+
+            #βοηθητική μεταβλητή για τον έλεγχο των παρενθέσεων
+            finish = len(digit)
+
+            #βρίσκω την τελευταία αριστερή παρένθεση...
+            start = digit[ : finish].rfind('(')
+            
+            #έλεγχος αν παρεμβάλλεται άλλη δεξιά παρένθεση (αναδρομικά)...
+            while digit[start : finish - 1].count(')') > 0:
+                finish = start
+                start = digit[ : finish].rfind('(')
+
+            #... αλλαγή του προσήμου αμέσως πριν από την τελευταία αριστερή παρένθεση που
+            #βρήκαμε...
+            if start > 0:
+                #match case                
+                match(digit[start -1]):                    
+                    case '-': digit = digit[ : start -1] + '+' + digit[ start : ]
+                    case _: digit = digit[ : start -1] + '-' + digit[ start : ]
+            else:
+                #match case
+                match(digit[finish -1]):
+                    case '-': digit = digit[ : finish -1] + '+' + digit[ finish : ]
+                    case _: digit = digit[ : finish -1] + '-' + digit[ finish : ]
+                
+        show_to_screen(digit)
+
+    #περίπτωση αλλαγής προσήμου στον τελευταίο αριθμό (δεν υπάρχει δεξιά παρένθεση)...
+    else:                
+        #...εύρεση του τελευταίου τελεστή ή αριστερής παρένθεσης (ψάχνουμε από το τέλος)...                
+        for i in range(-1, -len(digit),-1):
+            if digit[i] in ['+', '-', '*', '/', '**', '(']:
+                operator = digit[i]                
+                break
+        else:
+            #...περίπτωση να υπάρχει ένας αριθμός στην οθόνη χωρίς άλλο τελεστή (αλλαγή προσήμου στην αρχή)...                                
             #match case
+            clear_all()
             match(digit[0]):
                 case '-':
                     digit = digit[1:]
                 case _:
                     digit = '-' + digit
-        else:
-            #έρευνα αν υπάρχουν και άλλες "κλειστές" παρενθέσεις εντός αυτής
-            #...εύρεση της τελευταίας (εσώτερης) αριστερής παρένθεσης...
-            start = digit.rfind('(')
-
-            look_up = digit[start : -1].rfind(')')
-
-            while look_up != -1 and start != -1:
-                #...ψάξε και για άλλες αριστερές παρενθέσεις, αριστερότερα
-                #από την προηγούμενη
-                start = digit[:start].rfind('(')
-                look_up = digit[start : look_up].rfind(')')
+            show_to_screen(digit)
+            return
+        #...και αντιστροφή του    
+        #match case
+##        end = ''
+        if i == -1: end = ''
+        else: end = digit[i + 1:]        
+        match(operator):        
+            case '-':
+                digit = digit[:i] + '+' + end
+            case '+':
+                digit = digit[:i] + '-' + end          
+            case '(':
+                digit = digit[:i + 1] + '-' + end
+            #η default περίπτωση "πιάνει" και τις περιπτώσεις όπου δεν
+            #υπάρχει + ή - πριν από την αριστερή παρένθεση, πχ '*', '/', '**'
+            case _: digit = digit[:i] + '-' + end
                 
-            #...εύρεση προσήμου εκτός της αριστερής παρένθεσης...
-            if start > 0:
-                operator = digit[start - 1 : start]                
-            else: operator = ''        
-            #...και αντιστροφή του
-            #match case
-            match(operator):
-                case '-':
-                    if start > 1: digit = digit[:start - 1] + '+' + digit[start:]
-                    #αν πρέπει να αντιστρέψουμε το πρόσημο στην αρχή και πρέπει να
-                    #γίνει '+', τότε το παραλείπουμε
-                    else: digit = digit[:start - 1] + digit[start:]
-                case '+':
-                    digit = digit[:start - 1] + '-' + digit[start:]
-                #η default περίπτωση "πιάνει" και τις περιπτώσεις όπου δεν
-                #υπάρχει '+' ή '-' πριν από την αριστερή παρένθεση, πχ '*', '/', '**'
-                case _:
-                    if start > 1: digit = digit[:start] + '-' + digit[start:]
-                    else: digit = '-' + digit
-    #περίπτωση αλλαγής προσήμου στον τελευταίο αριθμό (δεν υπάρχει παρένθεση)...
-    else:                
-        #...εύρεση του τελευταίου τελεστή ή παρένθεσης (ψάχνουμε από το τέλος)...                
-        for i in range(len(digit)-1, -1, -1):
-            if digit[i] in ['+', '-', '*', '/', '**']:
-                operator = digit[i]                        
-                #...και αντιστροφή του
-                #match case
-                if i>0:
-                    match(operator):
-                        case '-':
-                            digit = digit[:i] + '+' + digit[i + 1:]
-                        case '+':
-                            digit = digit[:i] + '-' + digit[i + 1:]
-                        #η default περίπτωση "πιάνει" και τις περιπτώσεις όπου δεν
-                        #υπάρχει + 'η - πριν από την αριστερή παρένθεση, πχ '*', '/', '**'
-                        case _:
-                            digit = digit[:i + 1] + '-' + digit[i + 1:]
-                    show_to_screen(digit)
-                    return
-        #...περίπτωση να υπάρχει ένας μόνο - θετικός - αριθμός στην οθόνη (αλλαγή προσήμου στην αρχή)...                                
-        else:
-            #match case
-            match(digit[0]):
-                case '-':
-                    digit = digit[1:]
-                case _:
-                    digit = '-' + digit                                
-    show_to_screen(digit)
-
+        show_to_screen(digit)
+                               
 def reverse_number():
     '''
         Συνάρτηση που αντιστρέφει την είσοδο του χρήστη (1/x).
@@ -916,11 +943,9 @@ def key_command(event):
 
     #match case πλήκτρων
     #αμυντικός προγ/μός
-    #οι δομές ελέγχου try...except που εφαρμόστηκαν,
-    #χρησιμοποιούνται για την περίπτωση ο χρήστης να
-    #πληκτρολογήσει σε σημείο που δε βρίσκεται στο
-    #calculator (αν δεν υπήρχαν τα try...except, τότε
-    #θα "χτυπούσε" σφάλμα ο compiler)
+    #οι δομές ελέγχου try...except που εφαρμόστηκαν, χρησιμοποιούνται για την περίπτωση ο
+    #χρήστης να πληκτρολογήσει σε σημείο που δε βρίσκεται στο calculator (αν δεν υπήρχαν
+    #τα try...except, τότε θα "χτυπούσε" σφάλμα ο compiler)
     match(key_pressed):               
         case '1': what_to_do(15)
         case 'KP_1': what_to_do(15)
@@ -988,6 +1013,10 @@ def make_main_frame():
     '''
     #print(make_main_frame.__doc__)
 
+    #ενημέρωση καθολικής μεταβλητής section
+    global section
+    section = "MainFrame"
+
     #header
     headerTitle = Label(start_window, text = "   Smart Calc", font = ("Helvetica", 40, "bold"), bg = bg_color, fg = "#000000", padx = 165, anchor = 'center')
     headerTitle.grid(row = 0, column = 10, columnspan = 3, sticky =  E + W)
@@ -1031,11 +1060,7 @@ def make_main_frame():
     uk_label.grid(row = 4, column = 19)
     
     #εικόνα κεντρικής οθόνης
-    calc_label.grid(row = 20, column = 5)
-
-    #ενημέρωση καθολικής μεταβλητής section
-    global section
-    section = "MainFrame"    
+    calc_label.grid(row = 20, column = 5)    
         
 def make_calc_frame():
     '''
@@ -1043,8 +1068,10 @@ def make_calc_frame():
     '''
     #print(make_calc_frame.__doc__)
     
+    #ενημέρωση καθολικής μεταβλητής section
     global section
     section = "CalcFrame"
+    
     global CalcFrame    
     CalcFrame.grid(row = 5, column = 0, columnspan = 20, sticky =  N + S + E + W)
 
@@ -1080,9 +1107,7 @@ def make_calc_frame():
     next_line = 0
     next_column = 0
 
-    #προεπιλογή: ENABLED
-    status = 'ENABLED'
-    #επιλογή χρωμάτων (foreground, background0
+    #επιλογή χρωμάτων (foreground, background)
     for i in range(len(buttons_names_list)):
         
         #όλα τα υπόλοιπα πλήκτρα
@@ -1118,11 +1143,13 @@ def make_about_frame():
         Διαδικασία (οδηγίες σχετικά με τη χρήση του scientific calculator).
     '''
     #print(make_about_frame.__doc__)
+    
+    #ενημέρωση καθολικής μεταβλητής section
+    global section
+    section = "AboutFrame"
 
     global AboutFrame
-    global section
-    global about_label
-    section = "AboutFrame"
+    global about_label    
     AboutFrame = Frame(start_window, bg = bg_color, highlightthickness = 0)
     AboutFrame.grid(row = 5, column = 0, columnspan = 20, sticky =  N + S + E + W)
     blank_label = Label(AboutFrame, text = "", fg = "#000000", padx = 70, bg = bg_color)
@@ -1136,12 +1163,14 @@ def make_info_frame():
     '''
     #print(make_info_frame.__doc__)
     
+    #ενημέρωση καθολικής μεταβλητής section
     global section
+    section = "InfoFrame"
+    
     global InfroFrame
     global info_label
     global documentation_label
-    global documentation_btn
-    section = "InfoFrame"    
+    global documentation_btn    
     InfoFrame.grid(row = 10, column = 0, columnspan = 20, sticky =  N + S + E + W)
     blank2_label = Label(InfoFrame, text = "", fg = "#000000", padx = 200, bg = bg_color)
     blank2_label.grid(row = 11, column = 0, pady = 0)
@@ -1174,16 +1203,20 @@ def play_music():
     if start:
         intro_music = True
         mixer.music.load(sounds[0])
+        
+        #loop playing 
         mixer.music.play(-1)
+        
         speaker_btn.config(image = speaker_on)
         start = False
     else:
-        #εναλλαγές (pause/unpause κατά τη διάρκεια που τρέχει η εφαρμογή) με επιλογή του χρήστη       
+        #εναλλαγές (pause/unpause κατά τη διάρκεια που τρέχει η εφαρμογή) με επιλογή του χρήστη
+        #pause music
         if intro_music:
             intro_music = False            
             mixer.music.unpause()
             speaker_btn.config(image = speaker_on)
-        #loop playing            
+        #unpause music            
         else:
             mixer.music.pause()
             speaker_btn.config(image = speaker_off)
@@ -1239,7 +1272,7 @@ def main():
     mixer.init()
 
     #κατασκευή των Frames εδώ και τοποθέτησής τους (.grid) όποτε χρειαστεί. Αυτό το
-    #επιλέγουμε για να μπορουμε να κατασκευάσουμε τις εικόνες, οι οποιες χρειαζεται
+    #επιλέγουμε για να μπορουμε να κατασκευάσουμε τις εικόνες, οι οποιες χρειάζεται
     #να τοποθετηθουν στα ανάλογα Frames (αν δεν ειναι δηλωμένα σε αυτό το σημείο τα
     #Frames, o compiler χτυπάει σφάλμα (δηλώνονται ως καθολικές - global - μεταβλητές)
     global InfoFrame
